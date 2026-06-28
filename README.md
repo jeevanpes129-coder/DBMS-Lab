@@ -1,150 +1,173 @@
-create database company_db;
-use company_db;
-create table department (
-dname varchar(50) not null,
-dnumber int primary key,
-mgr_ssn int,
-mgr_start_date date,
-unique (dname)
+CREATE DATABASE company_db;
+USE company_db;
+
+CREATE TABLE department (
+    dname VARCHAR(50) NOT NULL,
+    dnumber INT PRIMARY KEY,
+    mgr_ssn INT,
+    mgr_start_date DATE,
+    UNIQUE (dname)
 );
-create table employee (
-fname varchar(20) not null,
-minit char(1),
-lname varchar(20) not null,
-ssn int primary key,
-bdate date,
-address varchar(100),
-sex char(1),
-salary decimal(10,2),
-super_ssn int,
-dno int,
-foreign key (super_ssn) references employee(ssn),
-foreign key (dno) references department(dnumber)
+
+CREATE TABLE employee (
+    fname VARCHAR(20) NOT NULL,
+    minit CHAR(1),
+    lname VARCHAR(20) NOT NULL,
+    ssn INT PRIMARY KEY,
+    bdate DATE,
+    address VARCHAR(100),
+    sex CHAR(1),
+    salary DECIMAL(10,2),
+    super_ssn INT,
+    dno INT,
+    FOREIGN KEY (super_ssn) REFERENCES employee(ssn),
+    FOREIGN KEY (dno) REFERENCES department(dnumber)
 );
-alter table department
-add foreign key (mgr_ssn)
-references employee(ssn);
-create table dept_locations (
-dnumber int not null,
-dlocation varchar(50) not null,
-foreign key (dnumber) references department(dnumber)
+
+ALTER TABLE department
+ADD FOREIGN KEY (mgr_ssn)
+REFERENCES employee(ssn);
+
+CREATE TABLE dept_locations (
+    dnumber INT NOT NULL,
+    dlocation VARCHAR(50) NOT NULL,
+    FOREIGN KEY (dnumber) REFERENCES department(dnumber)
 );
-create table project (
-pname varchar(50) not null,
-pnumber int primary key,
-plocation varchar(50),
-dnum int not null,
-unique (pname),
-foreign key (dnum) references department(dnumber)
+
+CREATE TABLE project (
+    pname VARCHAR(50) NOT NULL,
+    pnumber INT PRIMARY KEY,
+    plocation VARCHAR(50),
+    dnum INT NOT NULL,
+    UNIQUE (pname),
+    FOREIGN KEY (dnum) REFERENCES department(dnumber)
 );
-create table works_on (
-essn int not null,
-pno int not null,
-hours decimal(4,2),
-foreign key (essn) references employee(ssn),
-foreign key (pno) references project(pnumber)
+
+CREATE TABLE works_on (
+    essn INT NOT NULL,
+    pno INT NOT NULL,
+    hours DECIMAL(4,2),
+    FOREIGN KEY (essn) REFERENCES employee(ssn),
+    FOREIGN KEY (pno) REFERENCES project(pnumber)
 );
-create table dependent (
-essn int not null,
-dependent_name varchar(50) primary key,
-sex char(1),
-bdate date,
-relationship varchar(20),
-foreign key (essn) references employee(ssn)
+
+CREATE TABLE dependent (
+    essn INT NOT NULL,
+    dependent_name VARCHAR(50) PRIMARY KEY,
+    sex CHAR(1),
+    bdate DATE,
+    relationship VARCHAR(20),
+    FOREIGN KEY (essn) REFERENCES employee(ssn)
 );
-insert into department (dname, dnumber, mgr_ssn, mgr_start_date)
-values
-('computer science',1,null,'2024-01-10'),
-('information science',2,null,'2024-02-15'),
-('electronics',3,null,'2024-03-20');
-insert into employee
+
+INSERT INTO department (dname, dnumber, mgr_ssn, mgr_start_date)
+VALUES
+('computer science',1,NULL,'2024-01-10'),
+('information science',2,NULL,'2024-02-15'),
+('electronics',3,NULL,'2024-03-20');
+
+INSERT INTO employee
 (fname,minit,lname,ssn,bdate,address,sex,salary,super_ssn,dno)
-values
-('rahul','k','sharma',101,'1990-05-15','bengaluru','m',75000.00,null,1),
+VALUES
+('rahul','k','sharma',101,'1990-05-15','bengaluru','m',75000.00,NULL,1),
 ('priya','s','patil',102,'1992-08-20','mysuru','f',70000.00,101,2),
 ('arjun','r','reddy',103,'1991-11-25','hyderabad','m',72000.00,101,3);
-update department
-set mgr_ssn = 101
-where dnumber = 1;
-update department
-set mgr_ssn = 102
-where dnumber = 2;
-update department
-set mgr_ssn = 103
-where dnumber = 3;
-insert into dept_locations
-values
+
+UPDATE department
+SET mgr_ssn = 101
+WHERE dnumber = 1;
+
+UPDATE department
+SET mgr_ssn = 102
+WHERE dnumber = 2;
+
+UPDATE department
+SET mgr_ssn = 103
+WHERE dnumber = 3;
+
+INSERT INTO dept_locations
+VALUES
 (1,'bengaluru'),
 (2,'mysuru'),
 (3,'hyderabad');
-insert into project
+
+INSERT INTO project
 (pname,pnumber,plocation,dnum)
-values
+VALUES
 ('college management system',201,'bengaluru',1),
 ('hospital management system',202,'mysuru',2),
 ('smart traffic system',203,'hyderabad',3);
-insert into works_on
+
+INSERT INTO works_on
 (essn,pno,hours)
-values
+VALUES
 (101,201,40.00),
 (102,202,35.00),
 (103,203,38.50);
-insert into dependent
+
+INSERT INTO dependent
 (essn,dependent_name,sex,bdate,relationship)
-values
+VALUES
 (101,'anita','f','1993-02-10','wife'),
 (102,'rohan','m','2018-07-21','son'),
 (103,'lakshmi','f','1995-11-18','wife');
-select e.fname, e.minit, e.lname, e.address
-from employee e, department d
-where e.dno = d.dnumber
-and d.dname = 'computer science';
-select p.pnumber,
-p.dnum,
-e.lname,
-e.address,
-e.bdate
-from project p,
-department d,
-employee e
-where p.dnum = d.dnumber
-and d.mgr_ssn = e.ssn
-and p.plocation = 'bengaluru';
-select e.fname,
-e.minit,
-e.lname,
-s.fname as supervisor_fname,
-s.minit as supervisor_minit,
-s.lname as supervisor_lname
-from employee e,
-employee s
-where e.super_ssn = s.ssn;
-select e.fname,
-e.minit,
-e.lname
-from employee e,
-dependent d
-where e.ssn = d.essn
-and e.fname = d.dependent_name
-and e.sex = d.sex;
-select distinct e.ssn
-from employee e,
-works_on w,
-project p
-where e.ssn = w.essn
-and w.pno = p.pnumber
-and p.plocation in ('bengaluru', 'mysuru', 'hyderabad');
-select distinct essn
-from works_on
-where pno in
+
+SELECT e.fname, e.minit, e.lname, e.address
+FROM employee e, department d
+WHERE e.dno = d.dnumber
+AND d.dname = 'computer science';
+
+SELECT p.pnumber,
+       p.dnum,
+       e.lname,
+       e.address,
+       e.bdate
+FROM project p,
+     department d,
+     employee e
+WHERE p.dnum = d.dnumber
+AND d.mgr_ssn = e.ssn
+AND p.plocation = 'bengaluru';
+
+SELECT e.fname,
+       e.minit,
+       e.lname,
+       s.fname AS supervisor_fname,
+       s.minit AS supervisor_minit,
+       s.lname AS supervisor_lname
+FROM employee e,
+     employee s
+WHERE e.super_ssn = s.ssn;
+
+SELECT e.fname,
+       e.minit,
+       e.lname
+FROM employee e,
+     dependent d
+WHERE e.ssn = d.essn
+AND e.fname = d.dependent_name
+AND e.sex = d.sex;
+
+SELECT DISTINCT e.ssn
+FROM employee e,
+     works_on w,
+     project p
+WHERE e.ssn = w.essn
+AND w.pno = p.pnumber
+AND p.plocation IN ('bengaluru', 'mysuru', 'hyderabad');
+
+SELECT DISTINCT essn
+FROM works_on
+WHERE pno IN
 (
-select pnumber
-from project
-where plocation in ('bengaluru', 'mysuru', 'hyderabad')
+    SELECT pnumber
+    FROM project
+    WHERE plocation IN ('bengaluru', 'mysuru', 'hyderabad')
 );
-select
-sum(salary) as total_salary,
-max(salary) as maximum_salary,
-min(salary) as minimum_salary,
-avg(salary) as average_salary
-from employee;
+
+SELECT
+    SUM(salary) AS total_salary,
+    MAX(salary) AS maximum_salary,
+    MIN(salary) AS minimum_salary,
+    AVG(salary) AS average_salary
+FROM employee;
